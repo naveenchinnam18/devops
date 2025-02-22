@@ -1,0 +1,62 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger when there's a push to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Trigger when there's a pull request targeting the 'main' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python (for the Python file)
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # Specify the Python version
+
+      # Step 3: Install dependencies (if you have any)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip  # Upgrade pip
+          # You can add any Python dependencies here, for example:
+          # pip install -r requirements.txt
+
+      # Step 4: Run Python file (you can test the app.py file)
+      - name: Run Python file
+        run: python app.py  # This assumes app.py is a Python script
+
+      # Step 5: Validate HTML (Optional, you can use linters or validators)
+      - name: Check HTML files
+        run: |
+          echo "Validating HTML files..."
+          # Simple validation command for HTML files (can be extended with linters)
+          if ! python -m http.server 8000 &>/dev/null; then
+            echo "HTML files are not valid"
+            exit 1
+          fi
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # Ensure this step runs only after the build job completes
+
+    steps:
+      # Step 1: Checkout the code (again)
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Deploy HTML files (example: to a remote server or S3, etc.)
+      - name: Deploy to server (example)
+        run: |
+          echo "Deploying HTML files to the server..."
+          # Replace with your actual deployment steps
+          # Example: using `scp` to upload HTML files to a server
+          scp index.html about.html username@yourserver:/path/to/deploy
